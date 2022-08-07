@@ -1,38 +1,19 @@
-from xml.dom.xmlbuilder import Options
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
+import pandas as pd
+from io import StringIO
 
-import time
+# TODO: Probably use Mrs. Pavett's login for the header
+headers = {
+    'Host': 'api.membershipworks.com',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36', 
+    'Referer': 'https://membershipworks.com/',
+    'Cookie': '_gcl_au=1.1.1888969696.1659751184; _ga=GA1.2.1198389599.1659751184; _ga_310VR8R9KJ=GS1.1.1659751184.1.1.1659752050.0',
+    'Connection': 'keep-alive',
+}
+url = 'https://api.membershipworks.com/v1/csv?SF=Ueyb_StsMOohdDJ8tMtlnpY1qp5zjaAoRsETP-fPZg63EvdT52YtG4x-sJel9dRO&_rt=946706400&frm=618575991ea12250a05d87dd'
 
-options = webdriver.ChromeOptions()
-prefs = {"download.default_directory" : "/some/path"}
-options.add_experimental_option("prefs",prefs)
-# options.headless = True
-driver = webdriver.Chrome(options=options)
+req = requests.get(url, headers=headers)
+data = StringIO(req.text)
 
-driver.get("https://membershipworks.com/admin/#myaccount")
-
-# Save the current URL
-current_url = driver.current_url
-
-# Log in to MembershipWorks
-email_field = driver.find_element(By.NAME, "eml")
-pass_field = driver.find_element(By.NAME, "pwd")
-email_field.clear()
-email_field.send_keys("breitling.nw@gmail.com")
-pass_field.clear()
-pass_field.send_keys("THAPassword")
-pass_field.send_keys(Keys.RETURN)
-
-# After the URL changes, navigate to the order form
-# TODO: Potentially figure out a way to only use the API and not Selenium. As of now, I can't quite figure out authentication though
-WebDriverWait(driver, 15).until(EC.url_changes(current_url))
-print(driver.get_cookies())
-driver.get("https://api.membershipworks.com/v1/csv?SF=Fk8z6IyS8I-STaST9_c2YVwWvrTS4VzFpY7zxYgTAhLisFDfosN9glIkkyUMRn5y&_rt=946706400&frm=618575991ea12250a05d87dd")
-
-time.sleep(2)
-
-driver.quit()
+df = pd.read_csv(data)
+print(df)
