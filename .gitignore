@@ -1,3 +1,9 @@
 .DS_Store
-.vscode/settings.json
+
+__pycache__/
+*.py[cod]
+
+.idea
+.venv
+instance
 finished.csv
